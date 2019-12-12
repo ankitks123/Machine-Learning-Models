@@ -9,7 +9,6 @@ from sklearn.ensemble import RandomForestClassifier
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-
 raw_data = []
 #Loading the json file
 with open('/home/ankitsingh/Desktop/datasets/customersdata.json') as f:
