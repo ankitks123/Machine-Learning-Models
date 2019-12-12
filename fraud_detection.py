@@ -1,5 +1,14 @@
 import pandas as pd
 import json
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import f1_score
+from sklearn.svm import SVC
+from sklearn.ensemble import RandomForestClassifier
+import matplotlib.pyplot as plt
+import seaborn as sns
+
 
 raw_data = []
 #Loading the json file
@@ -35,7 +44,6 @@ customer_df['paymentMethodType'] = customer_df['paymentMethodType'].astype('cate
 customer_df['paymentMethodProvider'] = customer_df['paymentMethodProvider'].astype('category')
 customer_df['paymentMethodIssuer'] = customer_df['paymentMethodIssuer'].astype('category')
 
-from sklearn.preprocessing import LabelEncoder
 #To make sure Logistic Regression and SVM are able to handle categorical data.
 le = LabelEncoder()
 customer_df['orderState'] = le.fit_transform(customer_df['orderState'])
@@ -43,41 +51,42 @@ customer_df['paymentMethodType'] = le.fit_transform(customer_df['paymentMethodTy
 customer_df['paymentMethodProvider'] = le.fit_transform(customer_df['paymentMethodProvider'])
 customer_df['paymentMethodIssuer'] = le.fit_transform(customer_df['paymentMethodIssuer'])
 
+#Separate out feature set and target
 X = customer_df.drop('fraudulent', 1).values
 y = customer_df['fraudulent'].values
 
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import f1_score
-
+#Creating train and test set
 X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=None)
+
+#Considering baseline model to be Logistic Regression
 logistic_model = LogisticRegression()
 logistic_model.fit(X_train, y_train)
 
-print('Model accuracy: ', logistic_model.score(X_test, y_test))
+print('Logistic Regression model accuracy: ', logistic_model.score(X_test, y_test))
 pred = logistic_model.predict(X_test)
-print('Model F1 score: ', f1_score(y_test, pred))
+print('Logistic Regression model F1 score: ', f1_score(y_test, pred))
 
-from sklearn.svm import SVC
-svm_model = SVC(kernel='linear')
+#Support Vector Classifier
+svm_model = SVC(kernel='rbf')
 svm_model.fit(X_train, y_train)
-print('Model accuracy: ', svm_model.score(X_test, y_test))
-pred = svm_model.predict(X_test)
-print('Model F1 score: ', f1_score(y_test, pred))
 
-from sklearn.ensemble import RandomForestClassifier
+print('SVC model accuracy: ', svm_model.score(X_test, y_test))
+pred = svm_model.predict(X_test)
+print('SVC model F1 score: ', f1_score(y_test, pred))
+
+#Random Forest Classifier
 rf_model = RandomForestClassifier(n_estimators = 1000, random_state = None)
 rf_model.fit(X_train, y_train)
 
-rf_model.score(X_test, y_test)
+print('Random Forest Classifier model accuracy: ', rf_model.score(X_test, y_test))
+pred = rf_model.predict(X_test)
+print('Random Forest Classifier model F1 score:', f1_score(y_test, pred))
 
-rf_model.feature_importances_
-
+#Finding the most influencial features according to the Random Forest Model
 feature_importance = {i:j for i,j in zip(customer_df.columns[1:], rf_model.feature_importances_)}
-feature_importance
+print('Feature importance according to Random Forest Classifier: ', feature_importance)
 
-import matplotlib.pyplot as plt
-import seaborn as sns
+#Using the correlation among the features to find the most important feature
 plt.figure(figsize=(12,10))
 cor = customer_df.corr()
 sns.heatmap(cor, annot=True, cmap=plt.cm.Reds)
