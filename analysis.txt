@@ -1,0 +1,24 @@
+The data file in json format contains customer wise unique records.
+Within each record orders, payment methods and transactions list is there.
+
+The baseline model i.e. Logistic Regression has an accuracy of about 70-75% and f1 score of about 0.68 for most of the 
+random train-test split.
+
+The next choosen model i.e. Support Vector Classifier turns out to be a better model where accuracy climbed to around
+75% and f1 score around 0.72
+
+Random Forest model out performed each of the above two with an accuracy of about 82% and f1 score of 0.8.
+
+To find the most important feature out the lot two methods are used viz. Random Forest model's feature_importances_ attribute
+and correlation among the features.
+
+It turns out that orderAmount is the most important feature follwed by paymentMethodIssuer and paymentMethodProvider.
+
+List of most important feature in descending order of importance:
+1. orderAmount
+2. paymentMethodIssuer
+3. paymentMethodProvider
+4. paymentMethodType
+5. orderState
+6. paymentMethodRegistrationFailure
+7. transactionFailed
